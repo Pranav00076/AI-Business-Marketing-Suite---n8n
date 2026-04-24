@@ -8,8 +8,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        -2240,
-        768
+        -2232,
+        756
       ],
       "id": "0b59c6bf-2d3e-4bb8-805b-2a3eb5259257",
       "name": "Groq Chat Model",
@@ -30,7 +30,7 @@
       "typeVersion": 1.9,
       "position": [
         -2304,
-        544
+        532
       ],
       "id": "4f3a1f33-9629-41fa-a5f6-ef11435fb0fa",
       "name": "Priorty"
@@ -43,7 +43,7 @@
       "typeVersion": 2,
       "position": [
         -1952,
-        544
+        532
       ],
       "id": "c7282c4f-02ed-4e57-ab5b-38b1b49f5c8b",
       "name": "Code in JavaScript"
@@ -177,7 +177,7 @@
       "typeVersion": 2.1,
       "position": [
         -1728,
-        544
+        532
       ],
       "id": "9176799d-e813-4cfc-9f77-7c9712f2181d",
       "name": "Lead_record",
@@ -216,7 +216,7 @@
       "typeVersion": 2.3,
       "position": [
         -1504,
-        544
+        532
       ],
       "id": "d50cbb0d-08d6-49ac-81ca-8860af3f28ff",
       "name": "Score>70"
@@ -301,7 +301,7 @@
       "typeVersion": 2.3,
       "position": [
         -1280,
-        640
+        632
       ],
       "id": "069bc325-013e-4f65-9fd3-0454692f0c2a",
       "name": "Score>40"
@@ -323,7 +323,7 @@
       "typeVersion": 2.4,
       "position": [
         -1056,
-        400
+        388
       ],
       "id": "7930f47e-8c6b-49f8-ac20-9d902b957bea",
       "name": "Medium_priorty",
@@ -346,7 +346,7 @@
       "typeVersion": 2.2,
       "position": [
         -832,
-        400
+        388
       ],
       "id": "c7619353-0b8c-4214-b6f2-0fe07d0940d9",
       "name": "Medium_Email",
@@ -369,7 +369,7 @@
       "typeVersion": 2.2,
       "position": [
         -832,
-        736
+        728
       ],
       "id": "cba9ebf8-86a5-4ef8-a50e-fd924353554a",
       "name": "Low_priority",
@@ -391,8 +391,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        -96,
-        416
+        -88,
+        408
       ],
       "id": "d6eaa145-5e56-4a17-ac81-1618662240cf",
       "name": "Groq Chat Model (Content)",
@@ -413,7 +413,7 @@
       "typeVersion": 1.9,
       "position": [
         -160,
-        192
+        184
       ],
       "id": "9ad14e12-8dbb-4056-baf7-6eb7e872fa73",
       "name": "Generate Content"
@@ -607,7 +607,7 @@
       "type": "n8n-nodes-base.airtable",
       "typeVersion": 2.1,
       "position": [
-        2560,
+        1888,
         288
       ],
       "id": "73cb9ce8-4d88-4fc2-8238-f73c75dc5c5d",
@@ -635,7 +635,7 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.4,
       "position": [
-        2784,
+        2112,
         288
       ],
       "id": "df220294-f988-4dda-9bba-b227c20828fb",
@@ -677,7 +677,7 @@
       "typeVersion": 2.3,
       "position": [
         -384,
-        400
+        388
       ],
       "id": "bee36151-8750-460f-98a5-3609407a2355",
       "name": "Medium Content Approved?"
@@ -711,7 +711,7 @@
       "typeVersion": 2.3,
       "position": [
         -384,
-        736
+        728
       ],
       "id": "a68285f2-2837-4f6e-8be2-7125b75e5553",
       "name": "Low Content Approved?"
@@ -744,7 +744,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2336,
+        1664,
         288
       ],
       "id": "386fecd5-2aba-4e01-88df-bdc84ef5fcdd",
@@ -760,7 +760,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        2560,
+        1888,
         480
       ],
       "id": "987faba0-26b3-4b13-8ed8-a7cf1e4179dd",
@@ -784,7 +784,7 @@
       "typeVersion": 2.2,
       "position": [
         -96,
-        592
+        584
       ],
       "id": "5ceba42f-1f27-4417-ad3f-7ded64523168",
       "name": "Rejection Email Medium",
@@ -807,7 +807,7 @@
       "typeVersion": 2.2,
       "position": [
         -96,
-        784
+        776
       ],
       "id": "7b6ca240-b57d-4a31-ae62-b40cc3328f49",
       "name": "Rejection Email Low",
@@ -827,7 +827,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        496,
+        488,
         512
       ],
       "id": "c0b28ced-15d0-42aa-a141-bc7141a465f7",
@@ -890,7 +890,7 @@
       "typeVersion": 2.4,
       "position": [
         -608,
-        400
+        388
       ],
       "id": "2c81744e-42c4-4590-b52a-69e919723a69",
       "name": "Send message and wait for response1",
@@ -925,7 +925,7 @@
       "typeVersion": 2.4,
       "position": [
         -608,
-        736
+        728
       ],
       "id": "33b9f7a6-e1ba-43ad-ae4d-96648597245f",
       "name": "Send message and wait for response",
@@ -936,52 +936,6 @@
           "name": "Slack OAuth2 API"
         }
       }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://router.huggingface.co/nscale/v1/images/generations",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization ",
-              "value": "=Bearer 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"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"stabilityai/stable-diffusion-xl-base-1.0\",\n  \"prompt\": \"A high-quality marketing banner about {{ $('Parse Improved Content').item.json.topic }}, titled {{ $('Parse Improved Content').item.json.blog_title }}, modern SaaS UI, clean, gradient, professional\",\n  \"size\": \"1024x1024\"\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        1440,
-        224
-      ],
-      "id": "b52b5612-ce4c-470d-9477-cb79ab6663cd",
-      "name": "HTTP Request"
-    },
-    {
-      "parameters": {
-        "operation": "toBinary",
-        "sourceProperty": "data[0].b64_json",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.convertToFile",
-      "typeVersion": 1.1,
-      "position": [
-        1664,
-        224
-      ],
-      "id": "aeb455ef-f843-4fe9-b4a7-6fe85c9192f2",
-      "name": "Convert to File"
     },
     {
       "parameters": {
@@ -1006,39 +960,6 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "153bfe23-b32a-4694-9a2c-d3567596a50f",
-              "leftValue": "={{ $json.id }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        1216,
-        288
-      ],
-      "id": "d9d2e18e-78ec-4a91-8399-7f41089ae58d",
-      "name": "If"
-    },
-    {
-      "parameters": {
         "name": "={{ $('Form_Response').item.json.fields.name }} - Image",
         "driveId": {
           "__rl": true,
@@ -1057,7 +978,7 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        1888,
+        1216,
         288
       ],
       "id": "3a27454d-a717-477d-b05a-b6cc510e1391",
@@ -1091,7 +1012,7 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.4,
       "position": [
-        2112,
+        1440,
         288
       ],
       "id": "9c6f1db0-b7e0-4ecb-a903-9e9fc496dca3",
@@ -1164,7 +1085,7 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        2560,
+        1888,
         96
       ],
       "id": "2924656e-af06-41fb-a938-a7dcf5f3f40d",
@@ -1286,7 +1207,7 @@
       "typeVersion": 2.5,
       "position": [
         -2752,
-        544
+        532
       ],
       "id": "b0ad10ad-7eb6-4df0-bb6a-8154a6d4be02",
       "name": "On form submission",
@@ -1467,7 +1388,7 @@
       "typeVersion": 2.1,
       "position": [
         -2528,
-        544
+        532
       ],
       "id": "4b790c85-fd0a-4809-aece-f2f38b160abc",
       "name": "Form_Response",
@@ -1489,7 +1410,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        2784,
+        2112,
         96
       ],
       "id": "e6a2e083-b090-4bbd-a737-3ad3dbb9ff1d",
@@ -1519,7 +1440,7 @@
       "typeVersion": 2.4,
       "position": [
         -1056,
-        736
+        728
       ],
       "id": "7532f53c-3271-40ce-8895-d0ae69a7c6d5",
       "name": "Medium_priorty1",
@@ -1831,48 +1752,8 @@
         ]
       ]
     },
-    "HTTP Request": {
-      "main": [
-        [
-          {
-            "node": "Convert to File",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Convert to File": {
-      "main": [
-        [
-          {
-            "node": "Upload file",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Generate an image": {
       "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ],
         [
           {
             "node": "Upload file",
