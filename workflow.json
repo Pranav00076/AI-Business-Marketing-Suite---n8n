@@ -1,0 +1,1957 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -2240,
+        768
+      ],
+      "id": "0b59c6bf-2d3e-4bb8-805b-2a3eb5259257",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "H3SyIwcB06J2uUoQ",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert AI sales assistant for a business automation agency. Your job is to qualify inbound leads accurately using a structured scoring formula and generate personalized, high-converting email responses.\n\n---\n\n### LEAD SUBMISSION:\nId: {{ $json.id }}\nName: {{ $json[\"fields\"][\"name\"] }}\nEmail: {{ $json[\"fields\"][\"email\"] }}\nCompany: {{ $json[\"fields\"][\"company\"] }}\nService Requested: {{ $json[\"fields\"][\"services\"] }}\nBudget: {{ $json[\"fields\"][\"budget\"] }}\nTimeline: {{ $json[\"fields\"][\"timeline\"] }}\nProject Description: {{ $json[\"fields\"][\"message\"] }}\nPreferred Contact Time: {{ $json[\"fields\"][\"contact_time\"] }}\n\n---\n\n### SCORING FORMULA:\n\nLeadScore = I + U + B + D − P\n\nwhere each component is scored as follows:\n\n---\n\n### STEP 1 — INTENT SCORE (I):\nEvaluate the buying signal strength from the service requested and project description.\n- High intent (I = 40): Lead explicitly requests a quote, mentions specific deliverables, references a deadline, ROI, or a concrete outcome they want.\n- Medium intent (I = 25): Lead asks general questions, shows some interest but is non-committal or vague about what they want.\n- Low intent (I = 10): Vague submission, random text, no real project idea, or unclear what they are asking for.\n\nAssign intent label: High | Medium | Low\n\n---\n\n### STEP 2 — URGENCY SCORE (U):\nDerived strictly from the Timeline field value.\n- \"Urgent (ASAP - within 1 week)\" or \"This month\" → U = 20\n- \"Next 1-3 months\" → U = 10\n- \"3-6 months\" → U = 5\n- \"6+ months\" or \"Just exploring options\" → U = 0\n\nAssign urgency label: High (U=20), Medium (U=10 or 5), Low (U=0)\n\n---\n\n### STEP 3 — BUDGET SCORE (B):\nEvaluate the Budget field.\n- Clear and realistic budget stated (specific range or number) → B = 20\n- Moderate or partial budget information given → B = 10\n- Vague, missing, or \"not sure\" → B = 0\n\n---\n\n### STEP 4 — DESCRIPTION QUALITY SCORE (D):\nEvaluate the Project Description field.\n- Detailed: 3 or more sentences, explains goals, challenges, and desired outcome → D = 20\n- Medium: 1-2 sentences, gives some context but incomplete → D = 10\n- Poor: single word, single sentence with no context, or gibberish → D = 0\n\n---\n\n### STEP 5 — PENALTY (P):\n- Spam, gibberish, or clearly fake submission → P = 30\n- Very weak input across all fields (all vague, minimal effort) → P = 10\n- Good quality submission → P = 0\n\n---\n\n### STEP 6 — CALCULATE FINAL SCORE:\nLeadScore = I + U + B + D − P\nMaximum possible score = 100 (I=40, U=20, B=20, D=20, P=0)\n\nShow your working in the reason field, e.g.: \"I=40 + U=10 + B=20 + D=20 − P=0 = 90\"\n\n---\n\n### STEP 7 — ASSIGN PRIORITY:\n- High: LeadScore >= 70\n- Medium: LeadScore 40–69\n- Low: LeadScore < 40\n\n---\n\n### STEP 8 — INTENT ANALYSIS:\nWrite 1-2 sentences interpreting what the lead actually wants and how serious they are based on all fields combined.\n\n---\n\n### STEP 9 — EMAIL RESPONSE:\n- Priority High (score >= 70): warm and direct, reference their specific service/goal, propose a discovery call\n- Priority Medium (score 40-69): friendly, ask 1 clarifying question relevant to their project, offer to schedule a call\n- Priority Low (score < 40): do NOT mention a call. Simply acknowledge receipt and offer to answer any questions.\n- Always under 100 words. Never use placeholders. Use their actual name and service.\n\n---\n\n### SPECIAL RULE:\nIf the project description is gibberish, fewer than 10 words, or clearly spam → force intent=Low, urgency=Low, apply P=30, and final score must be <= 25 regardless of other fields.\n\n---\n\n### OUTPUT FORMAT (STRICT JSON ONLY — NO MARKDOWN FENCES, NO EXTRA TEXT BEFORE OR AFTER):\n\n{\"name\":\"value\",\"id\":\"value\",\"company\":\"value\",\"intent\":\"High|Medium|Low\",\"intent_analysis\":\"value\",\"urgency\":\"High|Medium|Low\",\"lead_score\":0,\"priority\":\"High|Medium|Low\",\"reason\":\"I=? + U=? + B=? + D=? − P=? = ?\",\"email_response\":\"value\"}\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -2304,
+        544
+      ],
+      "id": "4f3a1f33-9629-41fa-a5f6-ef11435fb0fa",
+      "name": "Priorty"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.text;\nconst cleaned = raw.replace(/```json|```/g, '').trim();\ntry {\n  return JSON.parse(cleaned);\n} catch(e) {\n  const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (match) return JSON.parse(match[0]);\n  throw new Error('Failed to parse AI response: ' + cleaned);\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1952,
+        544
+      ],
+      "id": "c7282c4f-02ed-4e57-ab5b-38b1b49f5c8b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appn5Cc4DjsC4fR7N",
+          "mode": "list",
+          "cachedResultName": "AI Business Automation",
+          "cachedResultUrl": "https://airtable.com/appn5Cc4DjsC4fR7N"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblTXOuMRnfGO1Hwv",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appn5Cc4DjsC4fR7N/tblTXOuMRnfGO1Hwv"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "intent": "={{ $json.intent }}",
+            "urgency": "={{ $json.urgency }}",
+            "lead_score": "={{ $json.lead_score }}",
+            "reason": "={{ $json.reason }}",
+            "priorty": "={{ $json.priority }}",
+            "email_response": "={{ $json.email_response }}",
+            "intent_analysis": "={{ $json.intent_analysis }}",
+            "name": "={{ $json.name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "intent_analysis",
+              "displayName": "intent_analysis",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "urgency",
+              "displayName": "urgency",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lead_score",
+              "displayName": "lead_score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priorty",
+              "displayName": "priorty",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email_response",
+              "displayName": "email_response",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1728,
+        544
+      ],
+      "id": "9176799d-e813-4cfc-9f77-7c9712f2181d",
+      "name": "Lead_record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "gxEioa9CyWXPne0u",
+          "name": "foai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0b142c25-e165-4998-833e-0be89980d3ff",
+              "leftValue": "={{ $json.fields.lead_score }}",
+              "rightValue": 70,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1504,
+        544
+      ],
+      "id": "d50cbb0d-08d6-49ac-81ca-8860af3f28ff",
+      "name": "Score>70"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AV0DL7PL5",
+          "mode": "list",
+          "cachedResultName": "foai-capstone-high"
+        },
+        "text": "=🔥 *HOT LEAD ALERT*\n\n*Name:* {{ $json.fields.name }}\n*Company:* {{ $('Code in JavaScript').item.json.company }}\n*Score:* {{ $json.fields.lead_score }}/100\n*Intent:* {{ $json.fields.intent }}\n*Urgency:* {{ $json.fields.urgency }}\n*Service:* {{ $('Form_Response').item.json.fields.services }}\n*Budget:* {{ $('Form_Response').item.json.fields.budget }}\n\n📧 Email response sent automatically. Content generation triggered.",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -608,
+        144
+      ],
+      "id": "271e86ad-d79c-4e2a-81d4-a4ca613bbf7a",
+      "name": "Send a message",
+      "webhookId": "cc5cd22e-79fb-4bcf-b2f9-164ba77ef7ff",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "BkP4lEyFeoKOivqP",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Form_Response').item.json.fields.email }}",
+        "subject": "Thanks for reaching out — let's talk!",
+        "message": "={{ $('Score>70').item.json.fields.email_response }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -384,
+        144
+      ],
+      "id": "77c75424-795e-4165-a43b-c153b8743abc",
+      "name": "High_priority",
+      "webhookId": "34d8fb0f-e60a-4b41-b326-94b65537db72",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e8jFEYBUInRfv0o9",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "faad2f97-3e2f-4c87-bb66-ec5d2565fdd6",
+              "leftValue": "={{ $json.fields.lead_score }}",
+              "rightValue": 40,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1280,
+        640
+      ],
+      "id": "069bc325-013e-4f65-9fd3-0454692f0c2a",
+      "name": "Score>40"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AQKCXF4AG",
+          "mode": "list",
+          "cachedResultName": "foai-capstone-medium"
+        },
+        "text": "=⚠️ *MEDIUM LEAD*\n\n*Name:* {{ $json.fields.name }}\n*Company:* {{ $('Code in JavaScript').item.json.company }}\n*Score:* {{ $json.fields.lead_score }}/100\n*Intent:* {{ $json.fields.intent }}\n*Service:* {{ $('Form_Response').item.json.fields.services }}\n\n📧 Email response sent automatically.",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -1056,
+        400
+      ],
+      "id": "7930f47e-8c6b-49f8-ac20-9d902b957bea",
+      "name": "Medium_priorty",
+      "webhookId": "cc5cd22e-79fb-4bcf-b2f9-164ba77ef7ff",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "BkP4lEyFeoKOivqP",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Form_Response').item.json.fields.email }}",
+        "subject": "Thanks for reaching out!",
+        "message": "={{ $('Score>40').item.json.fields.email_response }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -832,
+        400
+      ],
+      "id": "c7619353-0b8c-4214-b6f2-0fe07d0940d9",
+      "name": "Medium_Email",
+      "webhookId": "aa11bb22-cc33-dd44-ee55-ff6677889900",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e8jFEYBUInRfv0o9",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Form_Response').item.json.fields.email }}",
+        "subject": "Thanks for your message!",
+        "message": "={{ $json.fields.email_response }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -832,
+        736
+      ],
+      "id": "cba9ebf8-86a5-4ef8-a50e-fd924353554a",
+      "name": "Low_priority",
+      "webhookId": "d763b167-3c2b-492d-9ab1-e5f7dfe88d74",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e8jFEYBUInRfv0o9",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        416
+      ],
+      "id": "d6eaa145-5e56-4a17-ac81-1618662240cf",
+      "name": "Groq Chat Model (Content)",
+      "credentials": {
+        "groqApi": {
+          "id": "H3SyIwcB06J2uUoQ",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a senior content strategist and copywriter for a business automation agency.\n\nA HOT lead just submitted an inquiry. Based on their specific service interest and project details, generate a full, publish-ready content package that the team can use immediately for marketing this service.\n\nDONT include any emojies.\n---\n\n### LEAD CONTEXT:\nLead Name: {{ $('Code in JavaScript').item.json.name }}\nCompany: {{ $('Code in JavaScript').item.json.company }}\nService They Want: {{ $('Form_Response').item.json.fields.services }}\nProject Goal: {{ $('Form_Response').item.json.fields.message }}\nBudget Range: {{ $('Form_Response').item.json.fields.budget }}\nLead Score: {{ $('Lead_record').item.json.fields.lead_score }}\n\n---\n\n### CONTENT REQUIREMENTS:\n\n1. BLOG POST (SEO-optimized, publish-ready):\n   - A compelling, keyword-rich title\n   - Full body: intro paragraph, exactly 3 sections with subheadings (H2), closing CTA paragraph\n   - Total: 350-420 words\n   - Tone: authoritative but approachable, no jargon\n  - DON'T include any line-breaks or anything extra.\n\n2. SOCIAL MEDIA CAPTIONS (platform-native tone):\n   - LinkedIn: thought leadership angle, 120-150 words, end with a question to drive comments, 3 hashtags\n   - Instagram: punchy hook in first line, emoji-rich, 60-80 words, 5 niche hashtags\n   - Twitter/X: hook + value + CTA in one tweet, max 260 characters, 2 hashtags\n\n3. EMAIL NEWSLETTER SNIPPET:\n   - Subject line: curiosity-driven, under 50 characters\n   - Preview text: urgency or benefit, under 85 characters\n   - Body: problem → solution → CTA structure, max 90 words\n\n---\n\n### OUTPUT FORMAT (STRICT JSON ONLY — NO MARKDOWN FENCES, NO EXTRA TEXT):\n\n{\"lead_name\":\"value\",\n\"lead_email\":\"{{ $('Form_Response').item.json.fields.email }}\",\n\"topic\":\"derived topic name\",\n\"blog_title\":\"value\",\n\"blog_body\":\"full blog post here\",\n\"linkedin_caption\":\"value\",\n\"instagram_caption\":\"value\",\n\"twitter_caption\":\"value\",\n\"email_subject\":\"value\",\n\"email_preview\":\"value\",\n\"email_body\":\"value\",\n\"status\":\"Draft\"}\n\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -160,
+        192
+      ],
+      "id": "9ad14e12-8dbb-4056-baf7-6eb7e872fa73",
+      "name": "Generate Content"
+    },
+    {
+      "parameters": {
+        "jsCode": "// const raw = $input.first().json.text;\n// const cleaned = raw.replace(/```json|```/g, '').trim();\n// try {\n//   return JSON.parse(cleaned);\n// } catch(e) {\n//   const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n//   if (match) return JSON.parse(match[0]);\n//   throw new Error('Content parse failed: ' + cleaned.substring(0, 200));\n// }\n\n// return JSON.parse($input.first().json.text)\n\n// const outer = $input.first().json.text;\n\n// // Step 1: get the string\n// const raw = outer;\n\n// // Step 2: parse inner JSON\n// const parsed = JSON.parse(raw);\n\n// return parsed;\n\nconst raw = $input.first().json.text;\n\n// Extract all \"key\":\"value\" pairs safely\nconst regex = /\"([^\"]+)\"\\s*:\\s*\"([\\s\\S]*?)\"(,|$)/g;\n\nlet match;\nconst obj = {};\n\nwhile ((match = regex.exec(raw)) !== null) {\n  const key = match[1];\n  let value = match[2];\n\n  // Clean value\n  value = value\n    .replace(/\\\\n/g, \"\\n\")   // convert escaped newlines\n    .replace(/\\n/g, \" \")     // remove real line breaks\n    .replace(/\\\\\"/g, '\"')   // fix escaped quotes\n    .trim();\n\n  obj[key] = value;\n}\n\nreturn obj;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        288
+      ],
+      "id": "c5831e78-e8c1-4f3a-b464-a0fdc351ad2d",
+      "name": "Parse Content JSON"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appn5Cc4DjsC4fR7N",
+          "mode": "list",
+          "cachedResultName": "AI Business Automation",
+          "cachedResultUrl": "https://airtable.com/appn5Cc4DjsC4fR7N"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblkPkFNnVabklpsB",
+          "mode": "list",
+          "cachedResultName": "Content Pipeline",
+          "cachedResultUrl": "https://airtable.com/appn5Cc4DjsC4fR7N/tblkPkFNnVabklpsB"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_name": "={{ $('Parse Improved Content').item.json.lead_name }}",
+            "lead_email": "={{ $('Parse Improved Content').item.json.lead_email }}",
+            "topic": "={{ $('Parse Improved Content').item.json.topic }}",
+            "blog_title": "={{ $('Parse Improved Content').item.json.blog_title }}",
+            "blog_body": "={{ $('Parse Improved Content').item.json.blog_body }}",
+            "linkedin_caption": "={{ $('Parse Improved Content').item.json.linkedin_caption }}",
+            "instagram_caption": "={{ $('Parse Improved Content').item.json.instagram_caption }}",
+            "twitter_caption": "={{ $('Parse Improved Content').item.json.twitter_caption }}",
+            "email_subject": "={{ $('Parse Improved Content').item.json.email_subject }}",
+            "email_preview": "={{ $('Parse Improved Content').item.json.email_preview }}",
+            "email_body": "={{ $('Parse Improved Content').item.json.email_body }}",
+            "design_url": "={{ $('Upload file').item.json.webViewLink }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "lead_name",
+              "displayName": "lead_name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lead_email",
+              "displayName": "lead_email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "topic",
+              "displayName": "topic",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blog_title",
+              "displayName": "blog_title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "blog_body",
+              "displayName": "blog_body",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "design_url",
+              "displayName": "design_url",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "linkedin_caption",
+              "displayName": "linkedin_caption",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "instagram_caption",
+              "displayName": "instagram_caption",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "twitter_caption",
+              "displayName": "twitter_caption",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email_subject",
+              "displayName": "email_subject",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email_body",
+              "displayName": "email_body",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email_preview",
+              "displayName": "email_preview",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2560,
+        288
+      ],
+      "id": "73cb9ce8-4d88-4fc2-8238-f73c75dc5c5d",
+      "name": "Save Content to Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "3UJ56mvwCDxMZSeD",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AV3J52U58",
+          "mode": "list",
+          "cachedResultName": "foai-capstone-design"
+        },
+        "text": "=📝 *Content Package Ready for Review!*\n\n*Triggered by Lead:* {{ $('Parse Improved Content').item.json.lead_name }} ({{ $('Parse Improved Content').item.json.lead_email }})\n*Topic:* {{ $('Parse Improved Content').item.json.topic }}\n*Blog Title:* {{ $('Parse Improved Content').item.json.blog_title }}\n\n✅ Blog Post (350-420 words)\n✅ LinkedIn Caption\n✅ Instagram Caption\n✅ Twitter/X Caption\n✅ Email Newsletter Snippet\n✅ Canva Visual Design Generated\n\n📋 *Airtable Record ID:* {{ $json.id }}\n📌 Status: *Draft*\n\n*To approve → Review:*\nPOST to /webhook/content-approval with:\n`{\"record_id\": \"{{ $json.id }}\", \"action\": \"approve\"}`\n\n*To publish:*\n`{\"record_id\": \"{{ $json.id }}\", \"action\": \"publish\", \"lead_email\": \"{{ $('Parse Improved Content').item.json.lead_email }}\", \"lead_name\": \"{{ $('Parse Improved Content').item.json.lead_name }}\"}` ",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2784,
+        288
+      ],
+      "id": "df220294-f988-4dda-9bba-b227c20828fb",
+      "name": "Notify Content Ready",
+      "webhookId": "3741fcc7-9aef-4a6f-ab9d-0b76c9f099b4",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "BkP4lEyFeoKOivqP",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "med-approval-check-001",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "approve_content",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -384,
+        400
+      ],
+      "id": "bee36151-8750-460f-98a5-3609407a2355",
+      "name": "Medium Content Approved?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "low-approval-check-001",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "approve_content",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -384,
+        736
+      ],
+      "id": "a68285f2-2837-4f6e-8be2-7125b75e5553",
+      "name": "Low Content Approved?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "canva-design-approval-check-001",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "approve_design",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2336,
+        288
+      ],
+      "id": "386fecd5-2aba-4e01-88df-bdc84ef5fcdd",
+      "name": "Canva Design Approved?"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Form_Response').item.json.fields.email }}",
+        "subject": "An Update on Your Inquiry — We Appreciate Your Patience",
+        "message": "=Hi {{ $('Parse Improved Content').item.json.lead_name }},\n\nThank you so much for reaching out to us and for your patience throughout this process.\n\nWe wanted to let you know that after a thorough review of the content and visual materials we were preparing for your project, our team has decided not to move forward with this particular package at this time.\n\nWe sincerely apologise for any inconvenience this may cause. We always aim to deliver the highest quality work, and on this occasion, we feel we have not yet reached the standard your project deserves.\n\nThat said, we truly value your interest and would love the opportunity to work with you in the future. If you have any new ideas, different requirements, or another project in mind, please don't hesitate to get in touch.\n\nThank you for considering us, and we hope to connect with you again soon.\n\nWarm regards,\nThe Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2560,
+        480
+      ],
+      "id": "987faba0-26b3-4b13-8ed8-a7cf1e4179dd",
+      "name": "Send Canva Rejection Email",
+      "webhookId": "canva-rejection-email-1111-2222-3333",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e8jFEYBUInRfv0o9",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Form_Response').item.json.fields.email }}",
+        "subject": "Regarding your recent inquiry",
+        "message": "=Hi {{ $('Code in JavaScript').item.json.name }},\n\nThank you so much for reaching out to us — it truly means a lot that you considered us for your project.\n\nAfter careful review, we are unfortunately unable to proceed with content creation for your inquiry at this time. We sincerely apologise for any inconvenience this may cause.\n\nThat said, we genuinely value your interest and would love the opportunity to work with you in the future. If you ever have a new project idea, a different service you'd like to explore, or any questions we can help with — please do not hesitate to reach out. We'd be delighted to hear from you.\n\nWarm regards,\nThe Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        592
+      ],
+      "id": "5ceba42f-1f27-4417-ad3f-7ded64523168",
+      "name": "Rejection Email Medium",
+      "webhookId": "rejection-email-medium-1111",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e8jFEYBUInRfv0o9",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Form_Response').item.json.fields.email }}",
+        "subject": "Regarding your recent inquiry",
+        "message": "=Hi {{ $('Code in JavaScript').item.json.name }},\n\nThank you so much for reaching out to us — it truly means a lot that you considered us for your project.\n\nAfter careful review, we are unfortunately unable to proceed with content creation for your inquiry at this time. We sincerely apologise for any inconvenience this may cause.\n\nThat said, we genuinely value your interest and would love the opportunity to work with you in the future. If you ever have a new project idea, a different service you'd like to explore, or any questions we can help with — please do not hesitate to reach out. We'd be delighted to hear from you.\n\nWarm regards,\nThe Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        784
+      ],
+      "id": "7b6ca240-b57d-4a31-ae62-b40cc3328f49",
+      "name": "Rejection Email Low",
+      "webhookId": "rejection-email-low-1111",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e8jFEYBUInRfv0o9",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        496,
+        512
+      ],
+      "id": "c0b28ced-15d0-42aa-a141-bc7141a465f7",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "H3SyIwcB06J2uUoQ",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a senior content editor and brand strategist. You have been given a content package that was generated for a hot lead. Your task is to IMPROVE and ELEVATE every piece of content — make it sharper, more persuasive, and more visually compelling for Canva.\n\n---\n\n### ORIGINAL CONTENT TO IMPROVE:\nBlog Title: {{ $json.blog_title }}\nBlog Body: {{ $json.blog_body }}\nLinkedIn Caption: {{ $json.linkedin_caption }}\nInstagram Caption: {{ $json.instagram_caption }}\nTwitter/X Caption: {{ $json.twitter_caption }}\nEmail Subject: {{ $json.email_subject }}\nEmail Preview: {{ $json.email_preview }}\nEmail Body: {{ $json.email_body }}\nTopic: {{ $json.topic }}\nLead Name: {{ $json.lead_name }}\nLead Email: {{ $json.lead_email }}\n\n---\n\n### IMPROVEMENT RULES:\n1. BLOG: Punchier title, tighter intro, stronger subheadings, more urgent CTA. Keep 350-420 words.\n2. LINKEDIN: Stronger hook in first line. More specific thought leadership. Keep the question at end but more engaging.\n3. INSTAGRAM: Opening hook must stop the scroll. Keep emoji-rich and punchy.\n4. TWITTER/X: Snappier hook. Max 260 chars.\n5. EMAIL: More curiosity-driven subject. Stronger problem-solution flow.\n6. CANVA HEADLINE: Blog title will be used as Canva visual headline — make it bold, max 8 words.\n\n---\n\n### OUTPUT FORMAT (STRICT JSON ONLY — NO MARKDOWN FENCES, NO EXTRA TEXT):\n\n{\"lead_name\":\"{{ $json.lead_name }}\",\"lead_email\":\"{{ $json.lead_email }}\",\"topic\":\"improved topic name\",\"blog_title\":\"improved title\",\"blog_body\":\"improved blog post\",\"linkedin_caption\":\"improved\",\"instagram_caption\":\"improved\",\"twitter_caption\":\"improved\",\"email_subject\":\"improved\",\"email_preview\":\"improved\",\"email_body\":\"improved\",\"status\":\"Draft\"}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        416,
+        288
+      ],
+      "id": "a4dabe83-04e9-4282-b8dd-769bbb3957f5",
+      "name": "Improve Content"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.text;\nconst cleaned = raw.replace(/```json|```/g, '').trim();\ntry {\n  return JSON.parse(cleaned);\n} catch(e) {\n  const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (match) return JSON.parse(match[0]);\n  throw new Error('Parse Improved Content failed: ' + cleaned.substring(0, 200));\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        288
+      ],
+      "id": "c7958ba2-c0c4-436b-a878-e3d627ebbed7",
+      "name": "Parse Improved Content"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AQKCXF4AG",
+          "mode": "list",
+          "cachedResultName": "foai-capstone-medium"
+        },
+        "message": "=⚠️ *Medium Lead — Human Approval Required Before Content Creation*\n\n*Name:* {{ $('Code in JavaScript').item.json.name }}\n*Company:* {{ $('Code in JavaScript').item.json.company }}\n*Score:* {{ $('Lead_record').item.json.fields.lead_score }}/100\n*Intent:* {{ $('Lead_record').item.json.fields.intent }}\n*Service:* {{ $('Form_Response').item.json.fields.services }}\n\n📧 Initial email has been sent to the lead.",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -608,
+        400
+      ],
+      "id": "2c81744e-42c4-4590-b52a-69e919723a69",
+      "name": "Send message and wait for response1",
+      "webhookId": "eeb0b8b5-00a7-4728-892f-be5081d4148c",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "BkP4lEyFeoKOivqP",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AV3EDRZRQ",
+          "mode": "list",
+          "cachedResultName": "foai-capstone-approval"
+        },
+        "message": "=📉 *Low Lead — Human Approval Required Before Content Creation*\n\n*Name:* {{ $('Code in JavaScript').item.json.name }}\n*Company:* {{ $('Code in JavaScript').item.json.company }}\n*Score:* {{ $('Lead_record').item.json.fields.lead_score }}/100\n*Intent:* {{ $('Lead_record').item.json.fields.intent }}\n*Service:* {{ $('Form_Response').item.json.fields.services }}\n\n📧 Initial email has been sent to the lead.\n\n👉 *To approve Canva content creation, POST to:*\n`{{ $execution.resumeUrl }}`\nBody: `{\"action\": \"approve_content\"}`\n\n❌ To skip content creation, POST with:\n`{\"action\": \"reject_content\"}`",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -608,
+        736
+      ],
+      "id": "33b9f7a6-e1ba-43ad-ae4d-96648597245f",
+      "name": "Send message and wait for response",
+      "webhookId": "4b9b7160-1d5d-4bd7-9977-2a806c56bf08",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "BkP4lEyFeoKOivqP",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://router.huggingface.co/nscale/v1/images/generations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization ",
+              "value": "=Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"stabilityai/stable-diffusion-xl-base-1.0\",\n  \"prompt\": \"A high-quality marketing banner about {{ $('Parse Improved Content').item.json.topic }}, titled {{ $('Parse Improved Content').item.json.blog_title }}, modern SaaS UI, clean, gradient, professional\",\n  \"size\": \"1024x1024\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1440,
+        224
+      ],
+      "id": "b52b5612-ce4c-470d-9477-cb79ab6663cd",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data[0].b64_json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1664,
+        224
+      ],
+      "id": "aeb455ef-f843-4fe9-b4a7-6fe85c9192f2",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "=A premium SaaS landing page hero section for {{$json.topic}}. Concept based on {{$json.blog_title}}. Clean modern UI/UX design, dashboard interface with analytics and automation visuals, glassmorphism cards, blue and orange gradient, minimal layout, startup style, professional marketing banner, ultra sharp, 4K, realistic lighting, depth, dribbble style.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        992,
+        288
+      ],
+      "id": "90ae8fb1-3a9c-4665-9ca9-64153a928d05",
+      "name": "Generate an image",
+      "credentials": {
+        "openAiApi": {
+          "id": "4YX0WQdqRCgsvaPo",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "153bfe23-b32a-4694-9a2c-d3567596a50f",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1216,
+        288
+      ],
+      "id": "d9d2e18e-78ec-4a91-8399-7f41089ae58d",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Form_Response').item.json.fields.name }} - Image",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1Es_wkMWXBRkeeFzZI5pivtsRsyliTw_U",
+          "mode": "list",
+          "cachedResultName": "FOAI-CAPSTONE-IMAGE",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Es_wkMWXBRkeeFzZI5pivtsRsyliTw_U"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1888,
+        288
+      ],
+      "id": "3a27454d-a717-477d-b05a-b6cc510e1391",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "dEurpvWAx4pRUXUX",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AV3EDRZRQ",
+          "mode": "list",
+          "cachedResultName": "foai-capstone-approval"
+        },
+        "message": "=🎨 *Canva Design Ready — Human Visual Approval Required*\n\n*Lead:* {{ $('Parse Improved Content').item.json.lead_name }} ({{ $('Parse Improved Content').item.json.lead_email }})\n*Topic:* {{ $('Parse Improved Content').item.json.topic }}\n*Blog Title:* {{ $('Parse Improved Content').item.json.blog_title }}\n\n🖼️ *Design URL:*\n{{ $json.webContentLink }}\n\n👉 *Review the design above, then approve or reject:*\nPOST to: `{{ $execution.resumeUrl }}`\n\n✅ Approve: `{\"action\": \"approve_design\"}`\n❌ Reject: `{\"action\": \"reject_design\"}`\n\n⚠️ Rejecting will send an apology email to the lead.",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2112,
+        288
+      ],
+      "id": "9c6f1db0-b7e0-4ecb-a903-9e9fc496dca3",
+      "name": "Send message and wait for response3",
+      "webhookId": "6ea9cf67-a18b-4e98-84b5-11e24b9944fb",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "BkP4lEyFeoKOivqP",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "34c502f0-7865-801a-a5e2-ceca5e3c0145",
+          "mode": "list",
+          "cachedResultName": "Content Pipeline",
+          "cachedResultUrl": "https://www.notion.so/34c502f07865801aa5e2ceca5e3c0145"
+        },
+        "title": "Content",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Name|title",
+              "title": "={{ $('Parse Improved Content').item.json.lead_name }}"
+            },
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $('Parse Improved Content').item.json.lead_email }}"
+            },
+            {
+              "key": "Topic|rich_text",
+              "textContent": "={{ $('Parse Improved Content').item.json.topic }}"
+            },
+            {
+              "key": "Blog Title|rich_text",
+              "textContent": "={{ $('Parse Improved Content').item.json.blog_title }}"
+            },
+            {
+              "key": "Blog Body|rich_text",
+              "textContent": "={{ $('Parse Improved Content').item.json.blog_body }}"
+            },
+            {
+              "key": "linkedIn Caption|rich_text",
+              "textContent": "={{ $('Parse Improved Content').item.json.linkedin_caption }}"
+            },
+            {
+              "key": "Instagram Caption|rich_text",
+              "textContent": "={{ $('Parse Improved Content').item.json.instagram_caption }}"
+            },
+            {
+              "key": "Twitter/X Caption|rich_text",
+              "textContent": "={{ $('Parse Improved Content').item.json.twitter_caption }}"
+            },
+            {
+              "key": "Design Url|url",
+              "urlValue": "={{ $('Upload file').item.json.webViewLink }}"
+            },
+            {
+              "key": "status|status",
+              "statusValue": "Done"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2560,
+        96
+      ],
+      "id": "2924656e-af06-41fb-a938-a7dcf5f3f40d",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "XLWbOCgnQHhY1IIT",
+          "name": "FOAI Capstone"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Lead Intake Form",
+        "formDescription": "We'll get back to you soon",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name",
+              "placeholder": "Please Enter your Name...",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email Address",
+              "fieldType": "email",
+              "placeholder": "Please Enter your Email...",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name",
+              "placeholder": "Please Enter your Company..."
+            },
+            {
+              "fieldLabel": "Phone Number",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "What service(s) are you interested in?",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What's your budget range for this project?",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "When do you need this completed?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Urgent (ASAP - within 1 week)"
+                  },
+                  {
+                    "option": "This month"
+                  },
+                  {
+                    "option": "Next 1-3 months"
+                  },
+                  {
+                    "option": "3-6 months"
+                  },
+                  {
+                    "option": "6+ months"
+                  },
+                  {
+                    "option": "Just exploring options"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Tell us about your project",
+              "fieldType": "textarea",
+              "placeholder": "Describe your goals, challenges, and what you're hoping to achieve. The more details you provide, the better we can help!",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "How should we reach you?",
+              "fieldType": "radio",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Email (preferred)"
+                  },
+                  {
+                    "option": "Phone call"
+                  },
+                  {
+                    "option": "Either works"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Best time to contact you?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Morning (9 AM - 12 PM)"
+                  },
+                  {
+                    "option": "Afternoon (12 PM - 5 PM)"
+                  },
+                  {
+                    "option": "Evening (5 PM - 8 PM)"
+                  },
+                  {
+                    "option": "Anytime"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -2752,
+        544
+      ],
+      "id": "b0ad10ad-7eb6-4df0-bb6a-8154a6d4be02",
+      "name": "On form submission",
+      "webhookId": "3012e225-d9c0-4cd9-9b20-9ec4481d65ea"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appn5Cc4DjsC4fR7N",
+          "mode": "list",
+          "cachedResultName": "AI Business Automation",
+          "cachedResultUrl": "https://airtable.com/appn5Cc4DjsC4fR7N"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblmpwrYd8fWIqs0N",
+          "mode": "list",
+          "cachedResultName": "Form Response",
+          "cachedResultUrl": "https://airtable.com/appn5Cc4DjsC4fR7N/tblmpwrYd8fWIqs0N"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $json['Phone Number'] }}",
+            "name": "={{ $json['Full Name'] }}",
+            "email": "={{ $json['Email Address'] }}",
+            "company": "={{ $json['Company Name'] }}",
+            "services": "={{ $json['What service(s) are you interested in?'] }}",
+            "budget": "={{ $json['What\\'s your budget range for this project?'] }}",
+            "timeline": "={{ $json['When do you need this completed?'] }}",
+            "message": "={{ $json['Tell us about your project'] }}",
+            "How should we reach you?": "={{ $json['How should we reach you?'] }}",
+            "time": "={{ $json['Best time to contact you?'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "budget",
+              "displayName": "budget",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timeline",
+              "displayName": "timeline",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "contact_time",
+              "displayName": "contact_time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "How should we reach you?",
+              "displayName": "How should we reach you?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created By",
+              "displayName": "Created By",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -2528,
+        544
+      ],
+      "id": "4b790c85-fd0a-4809-aece-f2f38b160abc",
+      "name": "Form_Response",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "3UJ56mvwCDxMZSeD",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Parse Improved Content').item.json.lead_email }}",
+        "subject": "={{ $('Parse Improved Content').item.json.email_subject }}",
+        "emailType": "text",
+        "message": "=Hi {{ $json.name }},\n\nI’m happy to inform you that your requested **{{ $json.property_topic }}** has been successfully completed.\n\nYour content has been generated and organized in Notion for easy access and review. You can view it here:\n👉 {{ $json.url }}\n\nAdditionally, the design assets have been uploaded to Google Drive:\n👉 {{ $json.property_design_url }}\n\nPlease feel free to review everything at your convenience. If you have any feedback, revisions, or additional requests, just reply to this email—I’ll be happy to assist.\n\nLooking forward to your thoughts.\n\nBest regards,\nTeam PixelLogic\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2784,
+        96
+      ],
+      "id": "e6a2e083-b090-4bbd-a737-3ad3dbb9ff1d",
+      "name": "Send a message1",
+      "webhookId": "2c37ebcf-e3e4-4a16-bb43-cb9e2554f257",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "e8jFEYBUInRfv0o9",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AQKCXF4AG",
+          "mode": "list",
+          "cachedResultName": "foai-capstone-medium"
+        },
+        "text": "=⚠️ *MEDIUM LEAD*\n\n*Name:* {{ $json.fields.name }}\n*Company:* {{ $('Code in JavaScript').item.json.company }}\n*Score:* {{ $json.fields.lead_score }}/100\n*Intent:* {{ $json.fields.intent }}\n*Service:* {{ $('Form_Response').item.json.fields.services }}\n\n📧 Email response sent automatically.",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -1056,
+        736
+      ],
+      "id": "7532f53c-3271-40ce-8895-d0ae69a7c6d5",
+      "name": "Medium_priorty1",
+      "webhookId": "cc5cd22e-79fb-4bcf-b2f9-164ba77ef7ff",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "BkP4lEyFeoKOivqP",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Priorty",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Priorty": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Lead_record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead_record": {
+      "main": [
+        [
+          {
+            "node": "Score>70",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score>70": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Score>40",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "High_priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "High_priority": {
+      "main": [
+        [
+          {
+            "node": "Generate Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score>40": {
+      "main": [
+        [
+          {
+            "node": "Medium_priorty",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Medium_priorty1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medium_priorty": {
+      "main": [
+        [
+          {
+            "node": "Medium_Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medium_Email": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Low_priority": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model (Content)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Content",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Content": {
+      "main": [
+        [
+          {
+            "node": "Parse Content JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Content JSON": {
+      "main": [
+        [
+          {
+            "node": "Improve Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Content to Airtable": {
+      "main": [
+        [
+          {
+            "node": "Notify Content Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Content Ready": {
+      "main": [
+        []
+      ]
+    },
+    "Medium Content Approved?": {
+      "main": [
+        [
+          {
+            "node": "Generate Content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rejection Email Medium",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Low Content Approved?": {
+      "main": [
+        [
+          {
+            "node": "Generate Content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rejection Email Low",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Canva Design Approved?": {
+      "main": [
+        [
+          {
+            "node": "Save Content to Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Canva Rejection Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Improve Content",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Improve Content": {
+      "main": [
+        [
+          {
+            "node": "Parse Improved Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Improved Content": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response1": {
+      "main": [
+        [
+          {
+            "node": "Medium Content Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "Low Content Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response3": {
+      "main": [
+        [
+          {
+            "node": "Canva Design Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Form_Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form_Response": {
+      "main": [
+        [
+          {
+            "node": "Priorty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medium_priorty1": {
+      "main": [
+        [
+          {
+            "node": "Low_priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5b108e3ac005618fb9707cf3c3a5e7757a79ab0edd8bdb615d43ce0f91dab913"
+  }
+}
